@@ -1,0 +1,29 @@
+
+@Cacheable(cacheNames = "employee", key = "#id")
+@CachePut(cacheNames = "employee", key = "#result.id")
+@CachePut(cacheNames = "employee", key = "#id")
+@CacheEvict(cacheNames = "employee", key = "#id")
+
+
+
+
+@Configuration
+public class cacheConfig {
+
+    @Bean
+    public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+
+        RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
+                .prefixCacheNameWith("my-redis-cache")
+                .entryTtl(Duration.ofSeconds(120))
+                .enableTimeToIdle()
+                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
+
+        return RedisCacheManager.builder(connectionFactory)
+                .cacheDefaults(redisCacheConfiguration)
+                .build();
+    }
+
+
+}
